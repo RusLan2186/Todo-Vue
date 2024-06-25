@@ -1,0 +1,38 @@
+* {
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+ul {
+  list-style-type: none;
+}
+
+.error {
+  color: red;
+}
+
+.input {
+  border: 2px solid #55a45e;
+  padding: 10px;
+  width: 100%;
+ }
+
+.input:focus {
+  outline: none;
+  border: 3px solid #55a45e;
+}
+
+.item__hover {
+  transition: 0.3s all ease 0s;
+  cursor: pointer;
+}
+
+.item__hover:hover {
+  color: #108c21;
+}
