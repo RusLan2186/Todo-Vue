@@ -25,7 +25,8 @@ ul {
 
 .input:focus {
   outline: none;
-  border: 3px solid #55a45e;
+  box-shadow: 0px 10px 10px rgba(85, 164, 94, 0.5);
+
 }
 
 .item__hover {

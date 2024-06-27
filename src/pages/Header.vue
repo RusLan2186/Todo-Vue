@@ -4,6 +4,7 @@
     <nav class="nav">
       <router-link class="link" to="/">Posts</router-link>
       <router-link class="link" to="contacts">Contacts</router-link>
+      <router-link class="link" to="store">Store</router-link>
     </nav>
 
   </div>

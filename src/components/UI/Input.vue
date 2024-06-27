@@ -14,9 +14,7 @@ export default {
       this.$emit('update:modelValue', event.target.value)
     }
   },
-  // mounted() {
-  //   this.$refs.titleInput.focus();
-  // }
+
 }
 </script>
 
