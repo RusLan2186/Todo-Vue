@@ -3,6 +3,7 @@ import PostPage from '@/pages/PostPage.vue'
 import SelectedPost from '@/pages/SelectedPost.vue'
 import About from '@/pages/About.vue'
 import NotFound from '@/pages/NotFound.vue'
+import PostPagewithStore from '@/pages/PostPageWithStore.vue'
 
 const routes = [
   {
@@ -23,7 +24,12 @@ const routes = [
   {
     path: '/:pathMatch(.*)*', 
     component: NotFound
-  }
+  },
+
+  {
+    path: '/store',
+    component: PostPagewithStore
+  },
 ]
 
 const router = createRouter({

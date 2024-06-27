@@ -1,25 +1,32 @@
 <template>
-  <div @click="this.isVisibleSortList = false;">
+
+  <div @click="setVisibleSortList(false)">
     <div class="post__page">
       <my-button @click="isShowModal">Create post</my-button>
-      <div class="search__wrapper">
-        <input v-model="searchValue" placeholder="Search" :class="{ expanded: isInputFocused }"
+
+      <div class="search__wrapper" :class="{ expanded: isInputFocused }">
+        <my-input :model-value="searchValue" @update:model-value="setSearchValue" placeholder="Search"
           @focus="isInputFocused = true" @blur="isInputFocused = false" />
+
+
         <span v-if="searchValue" @mousedown.prevent="handleClearSearch" class="search__clear">X</span>
       </div>
+
       <div @click.stop class="sort__wrapper">
-        Sort by: <span class="sort__title" @click="toggleSortList">{{ selectedSortText }}</span>
+        Sort by: <span class="sort__title" @click="setVisibleSortList(!isVisibleSortList)">{{ selectedSortText }}</span>
         <ul class="sort__list" v-if="isVisibleSortList">
           <li v-for="option in sortOptions" :key="option.value" @click="selectSort(option.value)">
             {{ option.text }}
           </li>
         </ul>
       </div>
+
     </div>
 
     <my-modal v-model:show="modalVisible">
       <post-form :modalVisible="modalVisible" @create="createPost" />
     </my-modal>
+
     <post-list :posts="filteredPosts" @remove="removePost" @change="changePost"
       v-if="!isPostsLoading && !isLoadError" />
 
@@ -29,7 +36,6 @@
 
     <Pagination v-if="filteredPosts.length > 0" :totalPages="totalPages" :pageNumber="pageNumber"
       @changePage="changePage" />
-
   </div>
 
 </template>
@@ -39,9 +45,8 @@ import PostForm from '@/components/PostForm.vue'
 import PostList from '@/components/PostList.vue'
 import Pagination from '@/components/Pagination.vue'
 import Sceleton from '@/components/Sceleton.vue'
-import axios from 'axios';
 import { notifySuccess, notifyError } from '@/assests/toastNotifications';
-
+import { mapState, mapGetters, mapMutations, mapActions } from 'vuex'
 
 export default {
   components: {
@@ -53,41 +58,24 @@ export default {
 
   data() {
     return {
-      posts: [],
       modalVisible: false,
-      isPostsLoading: false,
-      isLoadError: '',
-      searchValue: '',
       isInputFocused: false,
-      isVisibleSortList: false,
-      selectedSort: 'Select option',
-      sortOptions: [
-      { value: 'default', text: 'Default' },
-        { value: 'id', text: 'ID' },
-        { value: 'title', text: 'Title' },
-        { value: 'body', text: 'Description' },
-      
-      ],
-      pageNumber: 1,
-      limit: 10,
-      totalPages: 0,
     }
-
   },
   methods: {
-    async fetchPosts() {
-      try {
-        this.isPostsLoading = true;
-        this.isLoadError = '';
-        const response = await axios.get('https://jsonplaceholder.typicode.com/posts');
-        this.posts = response.data;
-        this.totalPages = Math.ceil(this.posts.length / this.limit);
-        this.isPostsLoading = false;
-      } catch (e) {
-        this.isLoadError = `Erorr loading posts: ${e.message}`;
-        this.isPostsLoading = false;
-      }
-    },
+    ...mapMutations({
+      setVisibleSortList: 'post/setVisibleSortList',
+      setPageNumber: 'post/setPageNumber',
+      setSelectedSort: 'post/setSelectedSort',
+      setSearchValue: 'post/setSearchValue',
+      setRemovePost: 'post/setRemovePost',
+
+    }),
+
+    ...mapActions({
+      fetchPosts: 'post/fetchPosts'
+    }),
+
 
     createPost(post) {
       this.posts.unshift(post)
@@ -96,13 +84,12 @@ export default {
     },
 
     removePost(id) {
-      this.posts = this.posts.filter(post => post.id !== id)
+      this.setRemovePost(id)
       notifyError('Post deleted')
     },
 
     changePost(id, newTitle, newBody) {
       const post = this.posts.find(post => post.id === id);
-
       if (post) {
         post.title = newTitle;
         post.body = newBody;
@@ -115,21 +102,20 @@ export default {
     },
 
     toggleSortList() {
-      this.isVisibleSortList = !this.isVisibleSortList;
+      this.isVisibleSortList = true;
     },
 
     selectSort(sortValue) {
-      this.isVisibleSortList = false;
-      this.selectedSort = sortValue;
+      this.setSelectedSort(sortValue);
+      this.setVisibleSortList(false)
     },
-
 
     handleClearSearch() {
       this.isInputFocused = true;
-      this.searchValue = ''
+      this.setSearchValue('')
     },
     changePage(page) {
-      this.pageNumber = page
+      this.setPageNumber(page)
       this.fetchPosts()
     }
   },
@@ -139,32 +125,23 @@ export default {
   },
 
   computed: {
-    sortedPosts() {
-      return [...this.posts].sort((post1, post2) => {
-        if (this.selectedSort === 'id') {
-          return post1[this.selectedSort] - post2[this.selectedSort];
-        }
-
-        if (this.selectedSort === 'default') {
-          return this.posts
-        }
-
-        return post1[this.selectedSort]?.localeCompare(post2[this.selectedSort]);
-      });
-    },
-    filteredPosts() {
-      const filtered = this.sortedPosts.filter(post =>
-        post.title.toLowerCase().includes(this.searchValue.toLowerCase()) ||
-        post.body.toLowerCase().includes(this.searchValue.toLowerCase())
-      );
-      const start = (this.pageNumber - 1) * this.limit;
-      const end = start + this.limit;
-      return filtered.slice(start, end);
-    },
-    selectedSortText() {
-      const selectedOption = this.sortOptions.find(option => option.value === this.selectedSort);
-      return selectedOption ? selectedOption.text : 'Select option';
-    }
+    ...mapState({
+      posts: state => state.post.posts,
+      isPostsLoading: state => state.post.isPostsLoading,
+      isLoadError: state => state.post.isLoadError,
+      isVisibleSortList: state => state.post.isVisibleSortList,
+      searchValue: state => state.post.searchValue,
+      selectedSort: state => state.post.selectedSort,
+      sortOptions: state => state.post.sortOptions,
+      pageNumber: state => state.post.pageNumber,
+      limit: state => state.post.limit,
+      totalPages: state => state.post.totalPages,
+    }),
+    ...mapGetters({
+      sortedPosts: 'post/sortedPosts',
+      filteredPosts: 'post/filteredPosts',
+      selectedSortText: 'post/selectedSortText',
+    })
   },
 
 
@@ -220,11 +197,11 @@ export default {
 
 .search__wrapper {
   position: relative;
-  width: 60%;
+  width: 25%;
   display: flex;
   justify-content: center;
-  position: relative;
   align-items: center;
+  transition: width 0.3s ease;
 }
 
 .search__clear {
@@ -234,20 +211,11 @@ export default {
   transform: translateX(-30px);
 }
 
+.expanded {
+  width: 35%;
+}
+
 .search__clear:hover {
   color: #55a45e;
-}
-
-input {
-  transition: width 0.3s ease;
-  width: 200px;
-  border: 2px solid #55a45e;
-  padding: 10px;
-}
-
-input.expanded {
-  width: calc(80% - 40px);
-  left: -20px;
-  outline: none;
 }
 </style>
