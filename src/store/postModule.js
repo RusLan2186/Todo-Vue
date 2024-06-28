@@ -1,4 +1,5 @@
-import axios from 'axios';
+import { fetchData } from '@/fetch/fetchData';
+
 
 export const postModule = {
   state: () => ({
@@ -80,17 +81,9 @@ export const postModule = {
   },
   actions: {
     async fetchPosts({ state, commit }) {
-      try {
-        commit('setIsLoading', true)
-        commit('setIsLoadError', '')
-        const response = await axios.get('https://jsonplaceholder.typicode.com/posts');
-        commit('setPosts', response.data);
-        commit('setTotalPages', Math.ceil(state.posts.length / state.limit))
-        commit('setIsLoading', false)
-      } catch (e) {
-        commit('setIsLoadError', `Error loading posts: ${e.message}`)
-        commit('setIsLoading', false)
-      }
+      const url = 'https://jsonplaceholder.typicode.com/posts'
+      await fetchData({ commit }, { url, setDataMutation: 'setPosts' });
+      commit('setTotalPages', Math.ceil(state.posts.length / state.limit));
     },
   },
   namespaced: true

@@ -76,7 +76,6 @@ export default {
       fetchPosts: 'post/fetchPosts'
     }),
 
-
     createPost(post) {
       this.posts.unshift(post)
       this.modalVisible = false;

@@ -9,61 +9,37 @@
       </div>
       <my-button @click="$router.back">Back</my-button>
     </div>
-
     <div v-else>
       <p class="error">{{ isLoadError }}</p>
     </div>
-
   </div>
   <div v-if="isLoading">
     <Sceleton v-for="n in 1" :key="n" />
   </div>
-
 </template>
 
 <script>
-import axios from 'axios';
-import Sceleton from '@/components/Sceleton.vue'
+import { mapState, mapGetters, mapActions } from 'vuex';
+import Sceleton from '@/components/Sceleton.vue';
 
 export default {
   components: {
     Sceleton
   },
-  data() {
-    return {
-      userId: this.$route.params.id,
-      user: {},
-      users: [],
-      isLoading: false,
-      isLoadError: ''
-    };
+  computed: {
+    ...mapState('user', ['selectedUser', 'isLoading', 'isLoadError']),
+    ...mapGetters('user', ['user']),
   },
- 
   methods: {
-    async fetchUsers() {
-      try {
-        this.isLoading = true;
-        this.isLoadError = '';
-        const response = await axios.get('https://jsonplaceholder.typicode.com/users')
-        this.users = response.data;
-        this.isLoading = false;
-      } catch (e) {
-        this.isLoadError = `User not found: ${e.message}`;
-        this.isLoading = false;
-        console.log(e.message);
-      }
-    },
-    async fetchUser() {
-      await this.fetchUsers();
-      const id = parseInt(this.$route.params.id);
-      this.user = this.users.find(user => user.id === id);
-    }
+    ...mapActions('user', ['fetchUser']),
   },
   created() {
-    this.fetchUser();
+    const userId = this.$route.params.id;
+    this.fetchUser(userId);
   }
-}
+};
 </script>
+
 
 <style scoped>
 strong {
