@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "deploy": "./deploy.sh",
+     "deploy": "bash ./deploy.sh",
     "build": "vite build",
     "preview": "vite preview"
   },
