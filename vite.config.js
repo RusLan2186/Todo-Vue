@@ -6,7 +6,7 @@ import vueJsx from '@vitejs/plugin-vue-jsx'
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  publicPath: '/Todo-vue',
+ base: '/Todo-vue',
   plugins: [
     vue(),
     vueJsx(),
