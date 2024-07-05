@@ -5,10 +5,11 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-     "deploy": "bash ./deploy.sh",
+    "deploy": "vue-cli-service build && gh-pages -d dist",
     "build": "vite build",
     "preview": "vite preview"
   },
+  "homepage": "https://RusLan2186/.github.io/Todo-Vue",
   "dependencies": {
     "axios": "^1.7.2",
     "vue": "^3.4.21",
@@ -20,6 +21,7 @@
     "@vitejs/plugin-vue": "^5.0.4",
     "@vitejs/plugin-vue-jsx": "^3.1.0",
     "@vue/cli-plugin-router": "~4.5.0",
+    "gh-pages": "^6.1.1",
     "vite": "^5.2.8"
   }
 }
